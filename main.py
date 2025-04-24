@@ -1,14 +1,18 @@
 #  ___________________
 #  Import LIBRARIES
+from typing import Any
 from fastapi import FastAPI
 
 #  Import FILES
-from models import FoodEnum
+from models import FoodEnum, Item
 from items_db import fake_items_db
 #  ___________________
 
 
 app = FastAPI()
+
+
+# Part 1
 
 
 @app.get("/")
@@ -24,6 +28,9 @@ async def post() -> dict[str, str]:
 @app.put("/")
 async def put() -> dict[str, str]:
     return {"message": "hello from the put route"}
+
+
+# Part 2
 
 
 @app.get("/users")
@@ -52,6 +59,9 @@ async def get_food(food_name: FoodEnum) -> dict[str, str]:
             "message": "you are still healthy, but like sweet things",
         }
     return {"food_name": food_name, "message": "i like chocolate milk"}
+
+
+# Part 3
 
 
 @app.get("/items")
@@ -92,6 +102,28 @@ async def get_user_item(
             }
         )
         return item
+
+
+# Part 4
+
+
+@app.post("/items")
+async def create_item(item: Item) -> dict[str, Any]:
+    item_dict: dict[str, Any] = item.model_dump()
+    if item.tax:
+        price_with_tax = item.price + item.tax
+        item_dict.update({"price_with_tax": price_with_tax})
+    return item_dict
+
+
+@app.put("/items/{item_id}")
+async def create_item_with_put(
+    item_id: int, item: Item, q: str | None = None
+) -> dict[str, str | float]:
+    result: dict[str, str | float] = {"item_id": item_id, **item.model_dump()}
+    if q:
+        result.update({"q": q})
+    return result
 
 
 # This is not needed at the moment
